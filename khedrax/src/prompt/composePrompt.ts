@@ -54,7 +54,18 @@ export async function composePrompt(
       fragmentsBySection.set(section, group);
     }
 
-    for (const [section, group] of fragmentsBySection) {
+    const instructionsGroups = Array.from(fragmentsBySection.entries()).sort(([leftSection], [rightSection]) => {
+      if (leftSection === 'instructions') {
+        return -1;
+      }
+      if (rightSection === 'instructions') {
+        return 1;
+      }
+      return leftSection.localeCompare(rightSection);
+    });
+
+    const instructionLines: string[] = [];
+    for (const [section, group] of instructionsGroups) {
       const exclusive = group.filter((fragment) => fragment.meta.exclusive);
       if (exclusive.length > 1) {
         const moduleNames = exclusive.map((fragment) => fragment.moduleName).sort();
@@ -72,15 +83,17 @@ export async function composePrompt(
           return a.moduleName.localeCompare(b.moduleName);
         });
 
-      const lines: string[] = [];
       if (section !== 'instructions') {
-        lines.push(`### ${section}`);
+        instructionLines.push(`### ${section}`);
       }
       for (const fragment of included) {
-        lines.push(`#### ${fragment.moduleName}`);
-        lines.push(fragment.content);
+        instructionLines.push(`#### ${fragment.moduleName}`);
+        instructionLines.push(fragment.content);
       }
-      sections.push({ name: section === 'instructions' ? 'Instructions' : section, content: lines.join('\n') });
+    }
+
+    if (instructionLines.length > 0) {
+      sections.push({ name: 'Instructions', content: instructionLines.join('\n') });
     }
   }
 

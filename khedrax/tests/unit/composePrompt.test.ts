@@ -47,7 +47,7 @@ test('composePrompt orders same-section fragments by priority then module name',
     capabilities: [],
   });
 
-  assert.match(result.markdown, /## custom\n#### a\nAlpha content\./);
+  assert.match(result.markdown, /## Instructions\n### custom\n#### a\nAlpha content\./);
   assert.match(result.markdown, /#### b\nBeta content\./);
 });
 
