@@ -32,7 +32,7 @@ export class GenerationEngine {
     const tempDir = context.tempDir || await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-gen-'));
     const fallbackOutputPath = path.join(path.dirname(tempDir), context.dna.name);
     const resolvedOutputPath = context.outputDir || fallbackOutputPath;
-    const effectiveForce = context.force ?? true;
+    const effectiveForce = context.force ?? false;
     await fs.mkdir(tempDir, { recursive: true });
     const artifacts: Record<string, unknown> = {};
 
