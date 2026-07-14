@@ -1,0 +1,12 @@
+{
+  "name": "discord",
+  "version": "1.0.0",
+  "capabilities": [
+    "Send and receive messages in Discord text channels.",
+    "React to and moderate messages within a Discord server."
+  ],
+  "constraints": [
+    "Never DM a user without an explicit trigger from that user.",
+    "Never delete or moderate messages outside channels the agent has been explicitly granted access to."
+  ]
+}

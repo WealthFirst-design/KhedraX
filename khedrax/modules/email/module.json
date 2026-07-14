@@ -1,0 +1,12 @@
+{
+  "name": "email",
+  "version": "1.0.0",
+  "capabilities": [
+    "Send and receive email messages on behalf of the agent.",
+    "Parse incoming email threads for relevant context."
+  ],
+  "constraints": [
+    "Never send an email without a clear, agent-appropriate subject and sender identity.",
+    "Never forward or expose the full content of a private email thread to an unrelated recipient."
+  ]
+}

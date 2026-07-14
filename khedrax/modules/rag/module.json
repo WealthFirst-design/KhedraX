@@ -1,0 +1,12 @@
+{
+  "name": "rag",
+  "version": "1.0.0",
+  "capabilities": [
+    "Retrieve relevant passages from a configured knowledge base to ground responses.",
+    "Cite retrieved sources when answering questions."
+  ],
+  "constraints": [
+    "Never present retrieved content as the agent's own knowledge without attribution.",
+    "Never fabricate a citation for content that was not actually retrieved."
+  ]
+}

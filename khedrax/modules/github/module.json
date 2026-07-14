@@ -1,0 +1,12 @@
+{
+  "name": "github",
+  "version": "1.0.0",
+  "capabilities": [
+    "Read repository issues, pull requests, and file contents.",
+    "Create or comment on issues and pull requests."
+  ],
+  "constraints": [
+    "Never push directly to a protected branch.",
+    "Never merge a pull request without an explicit instruction to do so."
+  ]
+}

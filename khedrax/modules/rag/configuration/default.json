@@ -1,0 +1,4 @@
+{
+  "vectorStore": "in-memory",
+  "topK": 5
+}

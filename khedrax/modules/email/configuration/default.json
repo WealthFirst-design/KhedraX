@@ -1,0 +1,4 @@
+{
+  "provider": "smtp",
+  "fromAddressPlaceholder": "agent@example.com"
+}
