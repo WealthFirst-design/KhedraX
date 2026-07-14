@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildAgentDNA, validateAgentDNA } from '../../src/dna/loader.ts';
-import { getRegistrySnapshot } from '../../src/registry/agentTypeRegistry.ts';
+import { getRegistrySnapshot } from '../../src/registry/index.ts';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 

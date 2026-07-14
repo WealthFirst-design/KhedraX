@@ -1,4 +1,4 @@
-import type { Checkpoint, StepResult, WorkflowStep } from './runner.ts';
+import { loadCheckpoint, saveCheckpoint } from '../cli/utils/checkpoint.ts';
 
 export interface StepResult { artifacts?: Record<string, unknown>; }
 export interface WorkflowStep {
@@ -23,6 +23,7 @@ export async function runWorkflow(steps: WorkflowStep[], checkpoint: Checkpoint)
     if (result.artifacts) {
       updated.artifacts[step.name] = result.artifacts;
     }
+    await saveCheckpoint(updated.buildId, updated);
   }
   return updated;
 }

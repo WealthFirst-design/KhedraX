@@ -8,7 +8,6 @@ import { PromptEngine } from '../engines/promptEngine.ts';
 import { MemoryEngine } from '../engines/memoryEngine.ts';
 import { DocumentationEngine } from '../engines/documentationEngine.ts';
 import { PackagingEngine } from '../engines/packagingEngine.ts';
-import { writeAgentSpec } from '../dna/loader.ts';
 import type { GenerationContext, ProducerEngine, ProducerResult } from './types.ts';
 
 export class GenerationEngine {
@@ -31,8 +30,10 @@ export class GenerationEngine {
 
   async run(context: GenerationContext): Promise<{ outputPath: string; tempDir: string }> {
     const tempDir = context.tempDir || await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-gen-'));
+    const fallbackOutputPath = path.join(path.dirname(tempDir), context.dna.name);
+    const resolvedOutputPath = context.outputDir || fallbackOutputPath;
+    const effectiveForce = context.force ?? true;
     await fs.mkdir(tempDir, { recursive: true });
-    await writeAgentSpec(tempDir, context.dna);
     const artifacts: Record<string, unknown> = {};
 
     for (const producer of this.producers) {
@@ -43,7 +44,7 @@ export class GenerationEngine {
     }
 
     const packagingEngine = new PackagingEngine();
-    const packageResult = await packagingEngine.run({ tempDir, outputDir: path.dirname(context.tempDir || tempDir), name: context.dna.name });
+    const packageResult = await packagingEngine.run({ tempDir, outputDir: resolvedOutputPath, name: context.dna.name, force: effectiveForce });
     return { outputPath: packageResult.outputPath, tempDir };
   }
 }

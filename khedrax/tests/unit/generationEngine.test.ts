@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GenerationEngine } from '../../src/generation/generationEngine.ts';
-import { getRegistrySnapshot } from '../../src/registry/agentTypeRegistry.ts';
+import { getRegistrySnapshot } from '../../src/registry/index.ts';
 import { buildAgentDNA } from '../../src/dna/loader.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

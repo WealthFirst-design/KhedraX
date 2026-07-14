@@ -5,7 +5,9 @@ export interface GenerationContext {
   dna: AgentDNA;
   registry: RegistrySnapshot;
   tempDir: string;
+  outputDir?: string;
   artifacts: Record<string, unknown>;
+  force?: boolean;
 }
 
 export interface ProducerResult {

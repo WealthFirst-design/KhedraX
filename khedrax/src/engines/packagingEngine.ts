@@ -1,7 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import os from 'node:os';
-import type { PackagingResult } from './packagingEngine.ts';
 
 export interface PackagingResult {
   outputPath: string;
@@ -12,6 +10,7 @@ export interface PackagingOptions {
   tempDir: string;
   outputDir: string;
   name: string;
+  force?: boolean;
 }
 
 export class PackagingEngine {
@@ -21,9 +20,27 @@ export class PackagingEngine {
       throw new Error(`Packaging rejected generated output due to KhedraX reference: ${scanResult.reason}`);
     }
 
-    const outputPath = path.join(options.outputDir, options.name);
+    const outputPath = options.outputDir;
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    await fs.rm(outputPath, { recursive: true, force: true });
+
+    try {
+      const existing = await fs.stat(outputPath);
+      if (existing.isDirectory() && !options.force) {
+        const entries = await fs.readdir(outputPath);
+        if (entries.length > 0) {
+          throw new Error(`Output path already exists: ${outputPath}. Use --force to overwrite.`);
+        }
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
+    }
+
+    if (options.force) {
+      await fs.rm(outputPath, { recursive: true, force: true });
+    }
+
     await fs.rename(options.tempDir, outputPath);
     return { outputPath, standalone: true };
   }

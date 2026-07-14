@@ -6,11 +6,11 @@ export class PromptEngine implements ProducerEngine {
   name = 'prompt';
 
   async run(context: GenerationContext): Promise<ProducerResult> {
-    const resolvedModules = context.artifacts.module?.resolvedModules ?? [];
+    const resolvedModules = (context.artifacts.module as { resolvedModules?: string[] } | undefined)?.resolvedModules ?? [];
     const promptDir = path.join(context.tempDir, 'prompts');
     await fs.mkdir(promptDir, { recursive: true });
     const lines: string[] = [];
-    for (const moduleName of resolvedModules as string[]) {
+    for (const moduleName of resolvedModules) {
       const moduleDir = path.join(context.tempDir, 'prompts', moduleName);
       try {
         const content = await fs.readFile(path.join(moduleDir, 'fragment.md'), 'utf8');

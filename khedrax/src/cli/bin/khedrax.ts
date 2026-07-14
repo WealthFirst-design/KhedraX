@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { createAgent } from '../commands/create.ts';
+import { checkNodeVersion } from '../utils/nodeVersion.ts';
+
+const nodeCheck = checkNodeVersion(process.versions.node);
+if (!nodeCheck.ok) {
+  console.error(nodeCheck.reason);
+  process.exit(1);
+}
 
 const [, , command, name, ...rest] = process.argv;
 if (command !== 'create' || !name) {
@@ -11,6 +18,10 @@ if (command !== 'create' || !name) {
 const args = rest;
 let type = 'basic';
 let outputDir = path.resolve(process.cwd(), name);
+let force = false;
+let resume: string | undefined;
+let verbose = false;
+let modules: string[] = [];
 for (let index = 0; index < args.length; index += 1) {
   const arg = args[index];
   if (arg === '--type' && args[index + 1]) {
@@ -18,6 +29,16 @@ for (let index = 0; index < args.length; index += 1) {
     index += 1;
   } else if (arg === '--output' && args[index + 1]) {
     outputDir = path.resolve(process.cwd(), args[index + 1]);
+    index += 1;
+  } else if (arg === '--force') {
+    force = true;
+  } else if (arg === '--resume' && args[index + 1]) {
+    resume = args[index + 1];
+    index += 1;
+  } else if (arg === '--verbose') {
+    verbose = true;
+  } else if (arg === '--modules' && args[index + 1]) {
+    modules = args[index + 1].split(',').map((value) => value.trim()).filter(Boolean);
     index += 1;
   }
 }
@@ -27,9 +48,10 @@ try {
     name,
     type,
     outputDir,
-    modules: [],
-    force: false,
-    verbose: false,
+    modules,
+    force,
+    verbose,
+    resume,
   });
   console.log(result.outputPath);
 } catch (error) {

@@ -15,7 +15,7 @@ export class ModuleEngine implements ProducerEngine {
       const entries = ['implementation', 'configuration', 'prompts', 'tests'];
       for (const entry of entries) {
         const sourceEntry = path.join(sourceDir, entry);
-        const targetEntry = path.join(targetDir, entry);
+        const targetEntry = path.join(targetDir, entry, moduleName);
         try {
           const stats = await fs.stat(sourceEntry);
           if (stats.isDirectory()) {

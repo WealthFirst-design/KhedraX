@@ -26,10 +26,24 @@ export class TemplateEngine implements ProducerEngine {
       const sourcePath = path.join(templateRoot, src);
       const targetPath = path.join(context.tempDir, dest);
       await fs.mkdir(path.dirname(targetPath), { recursive: true });
-      const content = await fs.readFile(sourcePath, 'utf8');
-      await fs.writeFile(targetPath, content.replace(/\{\{name\}\}/g, context.dna.name).replace(/\{\{type\}\}/g, context.dna.agent.type));
+      let content = await fs.readFile(sourcePath, 'utf8');
+      content = content
+        .replace(/\{\{name\}\}/g, context.dna.name)
+        .replace(/\{\{type\}\}/g, context.dna.agent.type)
+        .replace(/\{\{buildId\}\}/g, context.dna.buildId)
+        .replace(/\{\{description\}\}/g, context.dna.description ?? '')
+        .replace(/\{\{version\}\}/g, context.dna.agent.version)
+        .replace(/\{\{modules\}\}/g, renderModules(context.dna.modules));
+      await fs.writeFile(targetPath, content);
     }
 
     return { artifacts: { rendered: true } };
   }
+}
+
+function renderModules(modules: string[]): string {
+  if (modules.length === 0) {
+    return '[]';
+  }
+  return modules.map((moduleName) => `- ${moduleName}`).join('\n');
 }

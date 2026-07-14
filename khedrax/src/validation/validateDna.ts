@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type { AgentDNA } from '../dna/schema.ts';
 import type { RegistrySnapshot } from '../registry/types.ts';
 
@@ -9,7 +11,7 @@ export interface ValidationResult {
 
 const RESERVED_NAMES = new Set(['test', 'khedrax', 'node_modules']);
 
-export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot): ValidationResult {
+export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot, outputDir?: string, force?: boolean): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -32,6 +34,21 @@ export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot): Val
 
   if (dna.modules.includes('memory') && Object.keys(dna.memory).length === 0) {
     warnings.push('Memory module selected without memory configuration; a minimal shape will be scaffolded.');
+  }
+
+  if (outputDir) {
+    const outputPath = outputDir;
+    try {
+      const existing = fs.statSync(outputPath);
+      if (existing.isDirectory() && !force) {
+        const entries = fs.readdirSync(outputPath);
+        if (entries.length > 0) {
+          warnings.push(`Output path already exists: ${outputPath}. Use --force to overwrite.`);
+        }
+      }
+    } catch {
+      // ignore missing paths
+    }
   }
 
   return { valid: errors.length === 0, errors, warnings };

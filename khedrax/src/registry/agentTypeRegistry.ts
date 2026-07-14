@@ -1,20 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { AgentTypeDescriptor, ModuleDescriptor, RegistrySnapshot } from './types.ts';
+import type { AgentTypeDescriptor } from './types.ts';
 
-export async function getRegistrySnapshot(rootDir: string): Promise<RegistrySnapshot> {
+export async function listAgentTypes(rootDir: string): Promise<Record<string, AgentTypeDescriptor>> {
   const agentTypesDir = path.join(rootDir, 'agentTypes');
-  const modulesDir = path.join(rootDir, 'modules');
-
   const agentTypes: Record<string, AgentTypeDescriptor> = {};
-  const modules: Record<string, ModuleDescriptor> = {};
+  const entries = await listDirectories(agentTypesDir);
 
-  const [agentTypeEntries, moduleEntries] = await Promise.all([
-    listDirectories(agentTypesDir),
-    listDirectories(modulesDir),
-  ]);
-
-  for (const entry of agentTypeEntries) {
+  for (const entry of entries) {
     const descriptorPath = path.join(agentTypesDir, entry, 'agentType.json');
     try {
       const content = JSON.parse(await fs.readFile(descriptorPath, 'utf8')) as AgentTypeDescriptor;
@@ -28,21 +21,7 @@ export async function getRegistrySnapshot(rootDir: string): Promise<RegistrySnap
     }
   }
 
-  for (const entry of moduleEntries) {
-    const descriptorPath = path.join(modulesDir, entry, 'module.json');
-    try {
-      const content = JSON.parse(await fs.readFile(descriptorPath, 'utf8')) as ModuleDescriptor;
-      modules[entry] = {
-        ...content,
-        name: entry,
-        path: path.join(modulesDir, entry),
-      };
-    } catch {
-      console.warn(`Skipping malformed module: ${entry}`);
-    }
-  }
-
-  return { agentTypes, modules };
+  return agentTypes;
 }
 
 async function listDirectories(root: string): Promise<string[]> {
@@ -55,6 +34,6 @@ async function listDirectories(root: string): Promise<string[]> {
 }
 
 export async function getAgentTypeDescriptor(rootDir: string, typeName: string): Promise<AgentTypeDescriptor | undefined> {
-  const snapshot = await getRegistrySnapshot(rootDir);
+  const snapshot = await import('./index.ts').then((mod) => mod.getRegistrySnapshot(rootDir));
   return snapshot.agentTypes[typeName];
 }

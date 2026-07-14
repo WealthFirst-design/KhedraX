@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createAgentWorkflow } from '../../src/workflow/createAgentWorkflow.ts';
-import { getRegistrySnapshot } from '../../src/registry/agentTypeRegistry.ts';
+import { getRegistrySnapshot } from '../../src/registry/index.ts';
 import { buildAgentDNA } from '../../src/dna/loader.ts';
 import { fileURLToPath } from 'node:url';
 

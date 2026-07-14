@@ -5,7 +5,8 @@ agent:
   type: {{type}}
   version: {{version}}
 persona: {}
-modules: []
+modules:
+{{modules}}
 memory: {}
 tools: {}
 workflows: {}

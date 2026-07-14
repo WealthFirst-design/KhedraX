@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { buildAgentDNA } from '../dna/loader.ts';
-import { getRegistrySnapshot } from '../registry/agentTypeRegistry.ts';
+import { getRegistrySnapshot } from '../registry/index.ts';
 import { GenerationEngine } from '../generation/generationEngine.ts';
 import { runWorkflow } from './runner.ts';
 import type { WorkflowStep, Checkpoint } from './runner.ts';
