@@ -39,7 +39,7 @@ KhedraX
 | CLI | Fully implemented |
 | Workflow Engine | Fully implemented (checkpoint + resume) |
 | DNA System | Fully implemented |
-| Registry System | Fully implemented (agentTypes/, modules/ discovery) |
+| Registry System | Fully implemented (agentTypes/, modules/, personas/, and, as of Work Package #6, memoryBackends/ discovery) |
 | Validation Engine | Implemented at schema + registry-cross-check level only |
 | Generation Engine | Fully implemented as orchestrator |
 | Template Engine | Fully implemented |
@@ -47,7 +47,7 @@ KhedraX
 | Packaging Engine | Implemented at minimum-viable level (atomic write, standalone check) |
 | Persona Engine | Fully implemented as of Work Package #2 — real persona resolution, constraint derivation, capability mapping, behavioral profile generation |
 | Prompt Engine | Fully implemented as of Work Package #3 — layered composition (identity, constraints, capabilities, instructions, escalation) with named-section merging and exclusive-ownership conflict resolution, consuming Persona Engine's behavioral profile |
-| Memory Engine | Interface defined, v1 implementation scaffolds empty `memory/` from DNA.memory shape only |
+| Memory Engine | Fully implemented as of Work Package #6 — resolves a memory backend from a filesystem-discovered `memoryBackends/` registry (default `in-memory`), merges DNA-level config overrides onto the backend's declared defaults, and cross-references resolved modules' `requiresMemory` declarations, all within scaffold/config only (never runtime storage logic) |
 | Documentation Engine | Fully implemented as of Work Package #5 — renders a concise root README.md and a detailed docs/README.md from Persona Engine's behavioral profile and Module Engine's resolved module descriptors |
 
 Every engine marked "pass-through" or "minimum-viable" still sits in its
@@ -137,8 +137,8 @@ Engine.
 - **Never:** knows about template files, module implementations, or how generation mechanically happens
 
 ### Registry System
-- **Owns:** discovery and indexing of `agentTypes/`, `modules/`, and (as of Work Package #2) `personas/` from the filesystem — `prompt-fragments/` remains a future addition
-- **Reads:** those filesystem directories, each entry's own metadata file (`agentType.json`, `module.json`, `persona.json`)
+- **Owns:** discovery and indexing of `agentTypes/`, `modules/`, `personas/` (Work Package #2), and, as of Work Package #6, `memoryBackends/` from the filesystem — `prompt-fragments/` remains a future addition
+- **Reads:** those filesystem directories, each entry's own metadata file (`agentType.json`, `module.json`, `persona.json`, `backend.json`)
 - **Writes:** nothing — read-only index, optionally cached in memory per run
 - **Never:** validates DNA content itself (that's Validation Engine); renders anything; encodes meaning about what a type or module "does"
 
@@ -167,10 +167,10 @@ Engine.
 - **Never:** talks to the CLI; decides personas or module set itself; calls any LLM; silently drops one of two modules that both claim exclusive ownership of the same section — that must fail loudly, per the same principle Module Engine uses for colliding file paths
 
 ### Memory Engine
-- **Owns:** scaffolding the `memory/` directory and memory-backend configuration from `AgentDNA.memory` and any module-declared memory requirements
-- **Reads:** `AgentDNA.memory`, `module.json` memory-requirement declarations
+- **Owns:** resolving a memory backend (from `AgentDNA.memory.backend` or a default) against the Registry System's `memoryBackends/` snapshot, merging `AgentDNA.memory.config` overrides onto that backend's declared defaults, cross-referencing resolved modules' `requiresMemory` declarations, and scaffolding the `memory/` directory and configuration accordingly
+- **Reads:** `AgentDNA.memory`, the Registry System's `memoryBackends/` snapshot, Module Engine's resolved-modules artifact (for `requiresMemory` declarations)
 - **Writes:** the `memory/` directory and its configuration in the generated project
-- **Never:** implements actual runtime memory storage logic beyond scaffold/config; executes memory calls
+- **Never:** implements actual runtime memory storage logic beyond scaffold/config; executes memory calls; decides the module set or persona
 
 ### Documentation Engine
 - **Owns:** generating `README.md` and `docs/` describing the assembled agent
