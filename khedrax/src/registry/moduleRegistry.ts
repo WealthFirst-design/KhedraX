@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { ModuleDescriptor } from './types.ts';
+import { parseFragmentMeta } from '../prompt/fragmentMetaDefaults.ts';
 
 export async function listModules(rootDir: string): Promise<Record<string, ModuleDescriptor>> {
   const modulesDir = path.join(rootDir, 'modules');
@@ -11,10 +12,26 @@ export async function listModules(rootDir: string): Promise<Record<string, Modul
     const descriptorPath = path.join(modulesDir, entry, 'module.json');
     try {
       const content = JSON.parse(await fs.readFile(descriptorPath, 'utf8')) as ModuleDescriptor;
+      const promptsDir = path.join(modulesDir, entry, 'prompts');
+      let promptSection: string | undefined;
+      let promptExclusive: boolean | undefined;
+      try {
+        const raw = JSON.parse(await fs.readFile(path.join(promptsDir, 'fragment.meta.json'), 'utf8'));
+        const meta = parseFragmentMeta(raw);
+        promptSection = meta.section;
+        promptExclusive = meta.exclusive;
+      } catch {
+        const meta = parseFragmentMeta(undefined);
+        promptSection = meta.section;
+        promptExclusive = meta.exclusive;
+      }
+
       modules[entry] = {
         ...content,
         name: entry,
         path: path.join(modulesDir, entry),
+        promptSection,
+        promptExclusive,
       };
     } catch {
       console.warn(`Skipping malformed module: ${entry}`);

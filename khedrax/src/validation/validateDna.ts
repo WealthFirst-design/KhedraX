@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { AgentDNA } from '../dna/schema.ts';
 import type { RegistrySnapshot } from '../registry/types.ts';
+import { detectExclusiveConflicts } from '../prompt/detectExclusiveConflicts.ts';
 
 export interface ValidationResult {
   valid: boolean;
@@ -26,10 +27,38 @@ export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot, outp
     errors.push(`AgentDNA.agent.type '${dna.agent.type}' is not registered.`);
   }
 
+  const seenModules = new Map<string, number>();
+  const duplicateModules = new Set<string>();
   for (const moduleName of dna.modules) {
+    const count = (seenModules.get(moduleName) ?? 0) + 1;
+    seenModules.set(moduleName, count);
+    if (count > 1) {
+      duplicateModules.add(moduleName);
+    }
     if (!registry.modules[moduleName]) {
       errors.push(`Unknown module '${moduleName}'.`);
     }
+  }
+
+  if (duplicateModules.size > 0) {
+    errors.push(`Duplicate module(s) in modules list: ${Array.from(duplicateModules).sort().join(', ')}.`);
+  }
+
+  const validModuleNames = dna.modules.filter((moduleName) => Boolean(registry.modules[moduleName]));
+  const distinctModuleNames = Array.from(new Set(validModuleNames));
+  const exclusivityEntries = distinctModuleNames
+    .map((moduleName) => {
+      const descriptor = registry.modules[moduleName];
+      return descriptor ? {
+        moduleName,
+        section: descriptor.promptSection ?? 'instructions',
+        exclusive: descriptor.promptExclusive ?? false,
+      } : null;
+    })
+    .filter((entry): entry is { moduleName: string; section: string; exclusive: boolean } => entry !== null);
+  const conflictMessage = detectExclusiveConflicts(exclusivityEntries);
+  if (conflictMessage) {
+    errors.push(conflictMessage);
   }
 
   if (dna.persona.presetName && !registry.personas[dna.persona.presetName]) {
