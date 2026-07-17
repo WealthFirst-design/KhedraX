@@ -34,6 +34,7 @@ test('Generation engine wires all producer engines in the required order', async
     tempDir: '/tmp/khedrax-temp',
     artifacts: {},
     force: true,
+    khedraxRootDir: khedraxRoot,
   };
   const result = await engine.run(context);
   assert.equal(result.outputPath.includes('SupportBot'), true);
@@ -62,6 +63,7 @@ test('Generation engine refuses to overwrite an existing output when force is om
     outputDir,
     artifacts: {},
     force: true,
+    khedraxRootDir: khedraxRoot,
   });
   assert.equal(first.outputPath, outputDir);
 
@@ -71,6 +73,7 @@ test('Generation engine refuses to overwrite an existing output when force is om
     tempDir: path.join(workspace, 'temp-b'),
     outputDir,
     artifacts: {},
+    khedraxRootDir: khedraxRoot,
   }), /already exists/i);
 });
 
