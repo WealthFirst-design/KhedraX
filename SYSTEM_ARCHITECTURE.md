@@ -39,7 +39,7 @@ KhedraX
 | CLI | Fully implemented |
 | Workflow Engine | Fully implemented (checkpoint + resume) |
 | DNA System | Fully implemented |
-| Registry System | Fully implemented (agentTypes/, modules/ — including, as of Work Package #8, each module's declared prompt-fragment section/exclusivity metadata — personas/, and memoryBackends/ discovery) |
+| Registry System | Fully implemented (agentTypes/, modules/ — including each module's declared prompt-fragment section/exclusivity metadata — personas/, and memoryBackends/ discovery), plus, as of Work Package #11, multi-root discovery across the built-in registries and any number of external plugin directories, with built-ins always taking precedence on a name collision |
 | Validation Engine | Implemented at schema + registry-cross-check level, plus, as of Work Package #8, cross-field checks: duplicate module detection and a pre-flight exclusive-prompt-section conflict check shared with Prompt Engine's own generation-time check |
 | Generation Engine | Fully implemented as orchestrator |
 | Template Engine | Fully implemented |
@@ -137,10 +137,10 @@ Engine.
 - **Never:** knows about template files, module implementations, or how generation mechanically happens
 
 ### Registry System
-- **Owns:** discovery and indexing of `agentTypes/`, `modules/` (each module's descriptor now also carries its declared prompt-fragment `section`/`exclusive` metadata, as of Work Package #8 — read from that module's `prompts/fragment.meta.json` using the same shared default-filling logic Prompt Engine uses, never duplicated), `personas/` (Work Package #2), and `memoryBackends/` (Work Package #6) from the filesystem
-- **Reads:** those filesystem directories, each entry's own metadata file (`agentType.json`, `module.json`, `persona.json`, `backend.json`, and now each module's `prompts/fragment.meta.json`)
+- **Owns:** discovery and indexing of `agentTypes/`, `modules/` (each module's descriptor now also carries its declared prompt-fragment `section`/`exclusive` metadata, as of Work Package #8 — read from that module's `prompts/fragment.meta.json` using the same shared default-filling logic Prompt Engine uses, never duplicated), `personas/` (Work Package #2), and `memoryBackends/` (Work Package #6) from the filesystem — and, as of Work Package #11, from any number of additional external **plugin roots**, each shaped exactly like a (partial) copy of the built-in registry layout
+- **Reads:** those filesystem directories (built-in and plugin), each entry's own metadata file (`agentType.json`, `module.json`, `persona.json`, `backend.json`, and now each module's `prompts/fragment.meta.json`)
 - **Writes:** nothing — read-only index, optionally cached in memory per run
-- **Never:** validates DNA content itself (that's Validation Engine); renders anything; encodes meaning about what a type or module "does"
+- **Never:** validates DNA content itself (that's Validation Engine); renders anything; encodes meaning about what a type or module "does"; silently lets a plugin-supplied entry override a built-in one of the same name — a collision is always resolved in the built-in's favor, with a logged warning, never a silent shadow
 
 ### Template Engine
 - **Owns:** variable substitution and rendering of base-scaffold template files into concrete output files
