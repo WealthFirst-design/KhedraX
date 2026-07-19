@@ -10,6 +10,7 @@ import type { Checkpoint, WorkflowStep } from '../../workflow/runner.ts';
 
 export interface CreateAgentRequest extends CreateAgentOptions {
   rootDir?: string;
+  pluginRoots?: string[];
 }
 
 export function buildCreateAgentStep(options: CreateAgentRequest): WorkflowStep {
@@ -17,7 +18,7 @@ export function buildCreateAgentStep(options: CreateAgentRequest): WorkflowStep 
     name: 'create-agent',
     async fn(checkpoint) {
       const rootDir = options.rootDir ?? path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', '..');
-      const registry = await getRegistrySnapshot(rootDir);
+      const registry = await getRegistrySnapshot(rootDir, options.pluginRoots ?? []);
       const dna = await buildAgentDNA(options, registry);
       const validation = validateAgentDNA(dna, registry, options.outputDir, options.force);
       if (!validation.valid) {
