@@ -1,5 +1,5 @@
 # KhedraX System Architecture Overview
-### v1.0 — companion to KHEDRAX_CONSTITUTION.md v1.0
+### v1.1 — companion to KHEDRAX_CONSTITUTION.md v1.1
 
 The Constitution defines **how** KhedraX must be built. This document defines
 **what** exists in the system: the complete set of engines, how they depend
