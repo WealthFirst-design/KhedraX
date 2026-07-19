@@ -4,7 +4,7 @@ import { getRegistrySnapshot } from '../../registry/index.ts';
 import { validateAgentDNA } from '../../validation/validateDna.ts';
 import { GenerationEngine } from '../../generation/generationEngine.ts';
 import { runWorkflow } from '../../workflow/runner.ts';
-import { loadCheckpoint, saveCheckpoint } from '../utils/checkpoint.ts';
+import { loadCheckpoint, saveCheckpoint } from '../../workflow/checkpoint.ts';
 import type { CreateAgentOptions } from '../../dna/schema.ts';
 import type { Checkpoint, WorkflowStep } from '../../workflow/runner.ts';
 

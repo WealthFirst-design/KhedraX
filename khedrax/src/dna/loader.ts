@@ -25,6 +25,10 @@ export async function buildAgentDNA(options: CreateAgentOptions, registry: Regis
     addModule(moduleName);
   }
 
+  if (options.persona) {
+    persona.presetName = options.persona;
+  }
+
   for (const agentType of Object.values(registry.agentTypes)) {
     if (agentType.name === options.type) {
       for (const moduleName of agentType.defaultModules) {

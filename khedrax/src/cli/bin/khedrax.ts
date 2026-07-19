@@ -22,6 +22,7 @@ let force = false;
 let resume: string | undefined;
 let verbose = false;
 let modules: string[] = [];
+let persona: string | undefined;
 for (let index = 0; index < args.length; index += 1) {
   const arg = args[index];
   if (arg === '--type' && args[index + 1]) {
@@ -40,6 +41,9 @@ for (let index = 0; index < args.length; index += 1) {
   } else if (arg === '--modules' && args[index + 1]) {
     modules = args[index + 1].split(',').map((value) => value.trim()).filter(Boolean);
     index += 1;
+  } else if (arg === '--persona' && args[index + 1]) {
+    persona = args[index + 1];
+    index += 1;
   }
 }
 
@@ -52,6 +56,7 @@ try {
     force,
     verbose,
     resume,
+    persona,
   });
   console.log(result.outputPath);
 } catch (error) {
